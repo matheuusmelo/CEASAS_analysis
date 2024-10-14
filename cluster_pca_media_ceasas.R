@@ -499,18 +499,6 @@ ind.plot <- fviz_pca_ind(res.pca)
 # Plot of variables
 var.plot <- fviz_pca_var(res.pca)
 
-pdf("PCA.pdf") # Create a new pdf device
-print(scree.plot)
-print(ind.plot)
-print(var.plot)
-dev.off() # Close the pdf device
-
-# Export into a CSV file
-write.infile(res.pca, "pca.csv", sep = ";")
-
-nome_arquivo_xlsx <- "pca.xlsx"
-write_xlsx(res.pca, nome_arquivo_xlsx)
-
 # Extract the results for individuals
 ind <- get_pca_ind(res.pca)
 ind
@@ -536,7 +524,6 @@ fviz_pca_ind(res.pca, axes = c(1, 2), geom.ind = c("point", "text"),
              col.ind = "black", col.ind.sup = "blue", alpha.ind = 1,
              select.ind = list(name = NULL, cos2 = NULL, contrib = NULL),
              jitter = list(what = "label", width = NULL, height = NULL))
-
 
 # Description of dimensions CORRELAÇÃO
 res.desc$Dim.1
