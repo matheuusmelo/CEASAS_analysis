@@ -21,7 +21,7 @@ library(ggplot2)
 setwd("C:/path/to/your/project")
 
 # Read the data from Excel file
-banco <- read_excel("banco_norm_nome_ingles_ajuste.xlsx")
+banco <- read_excel("bd1.xlsx")
 
 ceasa_nome <- banco$CEASAS
 
@@ -227,9 +227,8 @@ write.xlsx(final, "C:/path/to/your/project/clusterizacao.xlsx")
 #End of clusterization and start of PCA
 #descriptive analysis
 
-
 # Read the data from Excel file
-banco2 <- read_excel("clusterizacao_ajuste.xlsx")
+banco2 <- read_excel("bd2.xlsx")
 # Remove unwanted columns
 banco2 <- banco2[,-c(1,2,3)]
 
@@ -536,12 +535,12 @@ res.shiny=PCAshiny(banco)
 
 ################################################################## 
 #Descriptive analysis of primary db
-banco2 <- read_excel("Banco_Bruto_Set_2023.xlsx")
+banco4 <- read_excel("bd3.xlsx")
 
 # Remove unwanted columns
-banco2 <- banco2[,-c(1,2)]
+banco4 <- banco2[,-c(1,2)]
 
-banco3 <- banco2 %>%
+banco5 <- banco2 %>%
   group_by(Cluster) %>% 
   summarise(
     medias = mean(c(
@@ -565,12 +564,12 @@ banco3 <- banco2 %>%
   )
 
 
-head(banco3)
+head(banco5)
 
-writexl::write_xlsx(banco4,"estatistica_descritiva_geral_clusters.xlsx")
+writexl::write_xlsx(banco5,"estatistica_descritiva_geral_clusters.xlsx")
 
 
-df2 <- banco2 %>% 
+df2 <- banco4 %>% 
   group_by(Cluster) %>% 
   summarise(med_Distancia_km = mean(Distancia_km),
             var_Distancia_km = var(Distancia_km),
