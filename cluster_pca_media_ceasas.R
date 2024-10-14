@@ -1,3 +1,4 @@
+#Installing libraries 
 library(tidyverse)  # data manipulation
 library(cluster)    # clustering algorithms
 library(factoextra) # clustering visualization
@@ -17,10 +18,9 @@ library(fpc)
 library(clValid)
 library(ggplot2)
 
-setwd("C:/Users/mathe/OneDrive/Documentos/Profissional/Artigos/Em Produção/Dag/Artigo_1/Dados excel/Estatisticas_CEASAS/Cluster/R/Novo/Novo_set_2023")
+setwd("C:/path/to/your/project")
 
 # Read the data from Excel file
-#banco <- read_excel("banco_norm_nome_ingles.xlsx")
 banco <- read_excel("banco_norm_nome_ingles_ajuste.xlsx")
 
 ceasa_nome <- banco$CEASAS
@@ -40,21 +40,13 @@ banco <- as.data.frame(banco)
 rownames(banco) <- siglas_ceasas
 head(banco)
 
-#banco <- read.table(
-#  file = 'banco_julho_2023.csv',
-#  header = TRUE,
-#  sep = ',',
-#  skip = 0,
-#  fill = TRUE,
-#  encoding = "UTF-8")
-
 # Dissimilarity matrix
 d <- dist(banco, method = "euclidean")
 #matriz_d <- as.matrix(d)
 
-
+#End of importation process
 ####################################################### 
-#KMEANS
+#KMEANS Clusterization
 
 fviz_nbclust(banco, kmeans, method = "wss") +
   geom_vline(xintercept = 4, linetype = 2)+
@@ -68,7 +60,7 @@ nb <- NbClust(banco, diss = NULL, distance = "euclidean",
               min.nc = 2, max.nc = 10, 
               method = "kmeans", index = "all")
 
-# Trace o gráfico para visualizar os índices de validação
+# Plot the graph to visualize the validation indices
 fviz_nbclust(nb)
 
 clmethods <- c("hierarchical","kmeans","pam")
@@ -101,7 +93,7 @@ fviz_cluster(km.res, geom = "point", ellipse.type = "norm",
 
 #################################
 
-# Ward's method
+# Ward's method clusterization
 hc5 <- hclust(d, method = "ward.D2" )
 
 hc.res <- eclust(banco, "hclust", k = 3, hc_metric = "euclidean",
@@ -128,10 +120,8 @@ p2 <- p + theme(
   axis.text.x = element_text(face = "bold"),
   axis.text.y = element_text(face = "bold"))
 
-# Visualize o gráfico com os rótulos dos eixos em negrito
+# Visualize the graph with axis labels in bold
 print(p2)
-
-
 
 nb <- NbClust(banco, distance = "euclidean", min.nc = 2,
               max.nc = 10, method = "average", index = "all")
@@ -151,7 +141,7 @@ banco %>%
   mutate(cluster = sub_grp) %>%
   head
 
-#dendrograma clássico
+# Classic dendrogram
 plot(hc5, cex = 0.6, hang = -1)
 rect.hclust(hc5, k = 3, border = 2:5)
 
@@ -175,7 +165,7 @@ head(silinfo$widths[, 1:3], 29)
 
 # Average silhouette width of each cluster
 med_si <- as.data.frame(silinfo$clus.avg.widths) 
-write.xlsx(med_si, "~/Profissional/Artigos/Em Produção/Dag/Dados excel/Estatisticas_CEASAS/Cluster/R/Novo/Novo_set_2023/med_silhouette_cada_cluster.xlsx")
+write.xlsx(med_si, "C:/path/to/your/project/med_silhouette_cada_cluster.xlsx")
 
 # The total average (mean of all individual silhouette widths)
 med_si_2 <-  as.data.frame(silinfo$avg.width)
@@ -231,11 +221,11 @@ final <- final %>%
 
 view(final)
 
-write.xlsx(final, "~/Profissional/Artigos/Em Produção/Dag/Dados excel/Estatisticas_CEASAS/Cluster/R/Novo/Novo_set_2023/clusterizacao.xlsx")
+write.xlsx(final, "C:/path/to/your/project/clusterizacao.xlsx")
 
 ####################################################################
-#FIM DO CLUSTER E COMEÇO DO PCA
-#analise descritiva
+#End of clusterization and start of PCA
+#descriptive analysis
 
 
 # Read the data from Excel file
@@ -243,10 +233,10 @@ banco2 <- read_excel("clusterizacao_ajuste.xlsx")
 # Remove unwanted columns
 banco2 <- banco2[,-c(1,2,3)]
 
-describe(banco2) # média, desvio padrão, mínimo e máximo
+describe(banco2) # mean, standard deviation, minimum and maximum
 boxplot(banco2)
 
-#matriz de correlações
+# Correlation matrix
 matcor <- round(cor(banco2), 2)
 matcor
 
@@ -259,7 +249,7 @@ ggcorrplot(matcor, hc.order = TRUE,
            ggtheme=theme_bw)
 
 
-# teste de Bartlett - testar se as variâncias são homogêneas
+# Bartlett test of sphericity - check if variance is homogeneous
 
 Bartlett.sphericity.test <- function(x)
 {
@@ -283,16 +273,15 @@ KMO(banco2)
 res.pca <- PCA(banco2, graph = TRUE) #PCA
 res.pca2 <- PCA(final, graph = TRUE) #PCA
 
-round(res.pca$eig,3) #autovalores com 3 casas decimais
+round(res.pca$eig,3) #eigenvalues ​​with 3 decimal places
 
 
 
-round(res.pca$svd$V,3) #autovetores
+round(res.pca$svd$V,3) #eigenvectors
 
-res.pca$eig # A proporção de variação retida pelos componentes principais (CP) pode ser extraída da seguinte forma
+res.pca$eig # The proportion of variance retained by the principal components (PC) can be extracted as follows
 
-
-round(res.pca$var$cor^2,4) # baseando-se na matriz de cor
+round(res.pca$var$cor^2,4) # based on the color matrix
 
 
 round(res.pca$var$cor,4)
@@ -302,12 +291,12 @@ round(res.pca$var$cos2,4)
 res.desc <- dimdesc(res.pca, axes = c(1,2))
 res.desc$Dim.1
 
-# Matriz rotacionada dos 3 Componentes Principais
+# Rotated Matrix of the 3 Principal Components
 pc <- principal(r=banco, nfactors=3, rotate="varimax", scores=T)
 pc$loadings
 
 
-#REALIZANDO PCA
+# Starting Principal Component Aanalysis 
 pca_res <- prcomp(banco, scale = TRUE)
 summary(pca_res) # standard deviation, proportioN of variance, cumulative proportion
 names(pca_res)
@@ -371,36 +360,29 @@ head(var$coord)
 fviz_pca_var(res.pca, col.var = "black")
 
 
-# PCA VARIAVEL COLORIDO
+# PCA VARIABLE COLOR
 pca_print <- fviz_pca_var(res.pca, col.var="cos2",
              gradient.cols = c("red", "blue", "#006400"),
              title = "",
              repel = TRUE) + xlab("Comercialization (k ton. and k USD)") +   ylab("Distance (Km)")
-
 pca_print <- pca_print +
   labs(color = "Contribution")
 
 print(pca_print)
 
-
-
-#PCA INDIVIDUAL COLORIDO
+# PCA VARIABLE COLOR
 pca_indiv_plot <- fviz_pca_ind(res.pca, col.ind = "cos2", geom = c("point", "text"), 
                                repel = TRUE, gradient.cols = c("red", "blue", "#006400"), title = "") + xlab("Comercialization (k ton. and k USD)") + ylab("Distance (Km)") +  theme_minimal() + theme(axis.text.x = element_text(face = "bold"))
-
-# Altere a legenda para "contribution"
 pca_indiv_plot <- pca_indiv_plot +
   labs(color = "Contribution")
 
 print(pca_indiv_plot)
 
 
-
 # Biplot of individuals and variables
 fviz_pca_biplot(res.pca, repel = TRUE,
                 title = NULL) + labs(x = "Comercialization (k t and k USD)", y = "Distance (Km)")
-                
-
+               
 fviz_pca_biplot(res.pca,
                 label = "all",
                 geom.ind = c("point", "text"), 
@@ -426,20 +408,14 @@ fviz_pca_biplot(res.pca,
                 repel = TRUE,
                 title = NULL) + labs(x = "Comercialization (k t and k USD)", y = "Distance (Km)")
 
-# Altere a legenda para "contribution"
 fviz_pca_biplot <- fviz_pca_biplot +
   labs(color = "Contribution")
 
 
-# Supondo que você tenha um vetor de clusters para cada indivíduo chamado "clusters"
 clusters <- c("Cluster 1", "Cluster 2", "Cluster 2",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 2",	"Cluster 2",	"Cluster 1",	"Cluster 2",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 1",	"Cluster 2",	"Cluster 2",	"Cluster 3",	"Cluster 2",	"Cluster 1",	"Cluster 2",	"Cluster 2",	"Cluster 1",	"Cluster 2")
 
-# Crie um vetor de cores correspondente aos clusters
 cluster_colors <- c("Cluster 1" = "Cluster 1", "Cluster 2" = "Cluster 2", "Cluster 3" = "Cluster 3")
-
-# Atribua cores aos indivíduos com base nos clusters
 col.individuals <- cluster_colors[clusters]
-
 
 q <- fviz_pca_biplot(res.pca,
                      label = "all",
@@ -459,8 +435,6 @@ q <- fviz_pca_biplot(res.pca,
 q <- q + labs(color = "Cluster")
 
 q
-
-
 
 fviz_pca_biplot(res.pca, geom=c("point", "text", "arrows"), 
                 label = "var", 
@@ -537,24 +511,8 @@ dev.off() # Close the pdf device
 # Export into a CSV file
 write.infile(res.pca, "pca.csv", sep = ";")
 
-# Especifique o nome do arquivo XLSX que você deseja criar
 nome_arquivo_xlsx <- "pca.xlsx"
-
-# Exporte os resultados para o arquivo XLSX
 write_xlsx(res.pca, nome_arquivo_xlsx)
-
-# Print scree plot to a png file
-#png("pca-scree-plot.png")
-#print(scree.plot)
-#dev.off()
-# Print individuals plot to a png file
-#png("pca-variables.png")
-#print(var.plot)
-#dev.off()
-# Print variables plot to a png file
-#png("pca-individuals.png")
-#print(ind.plot)
-#dev.off()
 
 # Extract the results for individuals
 ind <- get_pca_ind(res.pca)
@@ -566,15 +524,7 @@ view(ind)
 head(ind$contrib)
 view(ind$contrib)
 
-# Graph of individuals
-# 1. Use repel = TRUE to avoid overplotting
-# 2. Control automatically the color of individuals using the cos2
-# cos2 = the quality of the individuals on the factor map
-# Use points only
-# 3. Use gradient color
-options(ggrepel.max.overlaps = Inf)
-
-#PLOT PCA1 e PCA2
+#PLOT PCA1 and PCA2
 fviz_pca_ind(res.pca, 
              axes = c(1,2),
              col.ind = "cos2",
@@ -590,18 +540,6 @@ fviz_pca_ind(res.pca, axes = c(1, 2), geom.ind = c("point", "text"),
              select.ind = list(name = NULL, cos2 = NULL, contrib = NULL),
              jitter = list(what = "label", width = NULL, height = NULL))
 
-#PLOT PCA1 e PCA3
-#fviz_pca_ind(res.pca, 
- #            axes = c(1,3),
-  #           col.ind = "cos2",
-  #           gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-   #          repel = TRUE # Avoid text overlapping (slow if many points)
-#)
-
-
-#fviz_pca_ind(res.pca, label="none", habillage=final$Cluster)
-
-
 
 # Description of dimensions CORRELAÇÃO
 res.desc$Dim.1
@@ -613,34 +551,11 @@ res.shiny=PCAshiny(banco)
 
 
 ################################################################## 
-#Análise descritiva do banco bruto 
+#Descriptive analysis of primary db
 banco2 <- read_excel("Banco_Bruto_Set_2023.xlsx")
 
 # Remove unwanted columns
 banco2 <- banco2[,-c(1,2)]
-
-# Create a vector with the desired row names
-#siglas_ceasas2 <- c(
-  # "11", "12", "13", "14", "15", "16", "21", "22", "23", "24", "25", "26", "31", "32", "33", "34", "35", "36",
-  #  "41", "42", "43", "44", "45", "46", "51", "52", "53", "54", "55", "56", "61", "62", "63", "64", "65", "66",
-  #  "71", "72", "73", "74", "75", "76", "81", "82", "83", "84", "85", "86", "91", "92", "93", "94", "95", "96",
-  # "101", "102", "103", "104", "105", "106", "111", "112", "113", "114", "115", "116", "121", "122", "123", "124",
-  #"125", "126", "131", "132", "133", "134", "135", "136", "141", "142", "143", "144", "145", "146", "151", "152",
-  #"153", "154", "155", "156", "161", "162", "163", "164", "165", "166", "171", "172", "173", "174", "175", "176",
-  #"181", "182", "183", "184", "185", "186", "191", "192", "193", "194", "195", "196", "201", "202", "203", "204",
-  #"205", "206", "211", "212", "213", "214", "215", "216", "221", "222", "223", "224", "225", "226", "231", "232",
-  #"233", "234", "235", "236", "241", "242", "243", "244", "245", "246", "251", "252", "253", "254", "255", "256",
-  #"261", "262", "263", "264", "265", "266", "271", "272", "273", "274", "275", "276", "281", "282", "283", "284",
-  #"285", "286")
-
-# Convert tibble to data frame and set row names
-#banco2 <- as.data.frame(banco2)
-#rownames(banco2) <- siglas_ceasas2
-#head(banco2)
-#summary(banco2)
-
-
-# Média, desvio padrão e variância gerais de cada cluster
 
 banco3 <- banco2 %>%
   group_by(Cluster) %>% 
