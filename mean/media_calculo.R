@@ -1,50 +1,36 @@
+# Loading libraries
 library(dplyr)
 library(readxl)
 library(openxlsx)
 library(tidyr)
 library(deflateBR)
 
+setwd("C:/path/to/your/project")
 
-setwd("C:/Users/mathe/OneDrive/Documentos/Profissional/Artigos/Em Produção/Dag/Dados excel/Estatisticas_CEASAS/Cluster/R/Novo/Novo_set_2023/medias")
-
-# Read the data from Excel file
+# Read the data 
 prohort_comdist3 <- read_excel("prohort_comdist3_set_2023.xlsx")
 
 ############################
-#Distâncias
+#Distances
 
-# Banco de dados com distância média por Ceasa por Ano
+# Database with mean distance per CEASA per year
 dist_ano <- prohort_comdist3%>%
   group_by(munceasa, Ano) %>% 
   summarise(media_km = mean(c(dist_km), na.rm = T))
 
 writexl::write_xlsx(dist_ano,"medias_dist_ceasas_anos_set2023.xlsx")
 
-
-
-
-
-
-
-
-# Banco de dados com distância média por Ceasa em todos os anos
+# Database with mean distance per CEASA in all years
 dist_ano_2 <- prohort_comdist3%>%
   group_by(munceasa) %>% 
   summarise(media_km = mean(c(dist_km), na.rm = T))
 
 writexl::write_xlsx(dist_ano_2,"medias_dist_ceasas_set2023.xlsx")
 
-
-
-
-
-
-
 # Banco de dados com distância média por grupo por ano por ceasa
 dist_grupo_ano <- prohort_comdist3%>%
   group_by(munceasa,Ano,grupo) %>% 
   summarise(mediasimples = mean(c(dist_km), na.rm = T))
-
 
 # Informações de unidade e grupo passam para as colunas
 dist_grupo_ano_pivot <- dist_grupo_ano %>%
@@ -65,31 +51,9 @@ writexl::write_xlsx(dist_grupo_ano_2_pivot,"medias_dist_grupos_set2023.xlsx")
 
 
 
-
-
-
 ###########################
 # Valor
 
-# Banco de dados com kg e rs média por Ceasa por Ano
-mov_ano <- prohort_comdist3%>%
-  group_by(munceasa, Ano, unid) %>% 
-  summarise(media_valor = mean(c(valor), na.rm = T))
-
-writexl::write_xlsx(mov_ano,"medias_mov_ceasas_anos_set2023.xlsx")
-
-
-# Banco de dados com kg e rs média por Ceasa em todos os anos
-mov_ano_2 <- prohort_comdist3%>%
-  group_by(munceasa, unid) %>% 
-  summarise(media_valor = mean(c(valor), na.rm = T))
-
-writexl::write_xlsx(mov_ano_2,"medias_mov_ceasas_set2023.xlsx")
-
-# Banco de dados com com kg e rs média por grupo por ano por ceasa
-mov_grupo_ano <- prohort_comdist3%>%
-  group_by(munceasa,Ano,grupo, unid) %>% 
-  summarise(media_valor = mean(c(valor), na.rm = T))
 
 # Informações de unidade e grupo passam para as colunas
 mov_grupo_ano_pivot <- mov_grupo_ano %>%
@@ -367,11 +331,9 @@ resultado_hort_tuberculos_22 <- ipca(hort_tuberculos_22, actual_dates21, "12/202
 write.xlsx(resultado_hort_tuberculos_21, "C:/Users/mathe/OneDrive/Documentos/Profissional/Artigos/Em Produção/Dag/Dados excel/Estatisticas_CEASAS/Cluster/R/Novo/Novo_set_2023/medias/hort_tuberculos_22_Deflacionado.xlsx")
 
 
-
-
 #
 #
-# converter pra dolar
+# convert to dollar
 
 
 # Read the data from Excel file
@@ -449,43 +411,6 @@ dados_long2 <- banco_p_organizar %>%
 print(dados_long2)
 
 writexl::write_xlsx(dados_long2,"banco_organizado_final_mar24.xlsx")
-
-
-######################################
-# Banco de dados com kg e rs por grupo por Ceasa em todos os anos
-mov_grupo_ano_2 <- prohort_comdist3%>%
-  group_by(munceasa,grupo, unid) %>% 
-  summarise(media_valor = mean(c(valor), na.rm = T))
-
-mov_grupo_ano_2_pivot <- mov_grupo_ano_2 %>%
-  tidyr::pivot_wider(names_from = c(grupo, unid), values_from = c(media_valor)) 
-
-
-writexl::write_xlsx(mov_grupo_ano_2_pivot,"medias_mov_grupos_set2023.xlsx")
-
-##################################################################################
-# Organizar de novo os dados (Teste T - Igor Lima)
-
-banco_p_organizar <- read_excel("banco_organizado_final_mar24.xlsx")
-
-# Banco de dados com kg e rs média por Ceasa por Ano
-banco_igor <- banco_p_organizar%>%
-  group_by(Cluster) %>% 
-  summarise(media_valor = mean(c(dist_media_km), na.rm = T))
-
-
-banco_p_organizar
-
-# Organizar o banco de dados em ordem alfabética a partir da coluna Cluster
-dados_ordenados <- arrange(banco_p_organizar, Cluster)
-
-# Mostrar o banco de dados ordenado
-dados_ordenados
-
-
-writexl::write_xlsx(dados_ordenados,"banco_organizado_igor_abril24.xlsx")
-
-
 
 
 
