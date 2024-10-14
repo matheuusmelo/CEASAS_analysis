@@ -1,25 +1,23 @@
-# Carrega pacotes
+#Loading packages
 library(scales)
 library(tidyverse) 
 library(readxl)
 library(openxlsx)
 library(dplyr)
 
-setwd("C:/Users/mathe/OneDrive/Documentos/Profissional/Artigos/Em Produção/Dag/Dados excel/Estatisticas_CEASAS/Cluster/R/Novo/Novo_Agosto_2023/Normalizar")
+setwd("C:/path/to/your/project")
 
 # Read the data from Excel file
-banco_p_normalizar <- read_excel("banco_para_normalizar.xlsx")
-
+banco_p_normalizar <- read_excel("bd_to_normalizate.xlsx")
 ceasa_nome <- banco_p_normalizar$CEASAS
-
 ceasa_ID <- banco_p_normalizar$ID_CEASA
 
-# Remover colunas pois a normalização só ocorre com coluna de dados numéricos
+# Remove columns because normalization only occurs with numeric data columns
 banco_p_normalizar <- banco_p_normalizar[,-c(1,2)]
 
 head(banco_p_normalizar)
 
-# Crie uma função para normalizar uma coluna pelo mínimo e máximo
+# Create a function to normalize a column by minimum and maximum
 normalizar_coluna <- function(coluna) {
   minimo <- min(coluna)
   maximo <- max(coluna)
@@ -27,28 +25,28 @@ normalizar_coluna <- function(coluna) {
   return(coluna_normalizada)
 }
 
-# Aplique a função a todas as colunas do dataframe 'dados'
+# Apply function to all columns of dataframe 'data'
 colunas_normalizadas <- lapply(banco_p_normalizar, normalizar_coluna)
 
-# Crie um novo dataframe com as colunas normalizadas
+# Create a new dataframe with the normalized columns
 dados_normalizados <- as.data.frame(colunas_normalizadas)
 
-# Exiba o dataframe com as colunas normalizadas
+# Display the dataframe with normalized columns
 print(dados_normalizados)
 
-#Introduzir O nome das CEASAS de novo no banco
+# Enter the CEASAS name back into the database
 dados_normalizados <- dados_normalizados %>%
   mutate(CEASAS = ceasa_nome)
 
-#Introduzir O ID das CEASAS de novo no banco
+# Enter the CEASAS ID back into the database
 dados_normalizados <- dados_normalizados %>%
   mutate(ID_CEASA = ceasa_ID)
 
-
-#Reorganizar para que CEASAS seja a primeira coluna e ID_CEASA seja a segunda coluna do banco
+# Reorganize so that CEASAS is the first column and ID_CEASA is the second column in the database
 dados_normalizados <- dados_normalizados %>%
   select(CEASAS, ID_CEASA, everything())
 
 head(dados_normalizados)
 
-writexl::write_xlsx(dados_normalizados,"banco_normalizado_set_2023.xlsx")
+#Export database normalized
+writexl::write_xlsx(dados_normalizados,"normalized_bd.xlsx")
