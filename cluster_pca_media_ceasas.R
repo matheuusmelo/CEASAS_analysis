@@ -268,21 +268,18 @@ Bartlett.sphericity.test <- function(x)
 }
 Bartlett.sphericity.test(banco2)
 
-KMO(banco2)
+KMO(banco2) #KMO value
 
 res.pca <- PCA(banco2, graph = TRUE) #PCA
 res.pca2 <- PCA(final, graph = TRUE) #PCA
 
 round(res.pca$eig,3) #eigenvalues ​​with 3 decimal places
 
-
-
 round(res.pca$svd$V,3) #eigenvectors
 
 res.pca$eig # The proportion of variance retained by the principal components (PC) can be extracted as follows
 
 round(res.pca$var$cor^2,4) # based on the color matrix
-
 
 round(res.pca$var$cor,4)
 
